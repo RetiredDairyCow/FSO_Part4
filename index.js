@@ -20,7 +20,7 @@ const blogSchema = new mongoose.Schema({
   url: String,
   likes: Number
 })
-
+********
 const Blog = mongoose.model('Blog', blogSchema)
 
 const mongoUrl = process.env.MONGODB_URI
