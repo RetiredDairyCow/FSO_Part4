@@ -11,7 +11,8 @@
     "deploy": "git push heroku master",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push && npm run deploy",
     "logs:prod": "heroku logs --tail",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "jest --verbose"
   },
   "author": "ashesh patel",
   "license": "MIT",
@@ -29,6 +30,10 @@
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-react": "^7.27.1",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "jest": "^27.3.1",
     "nodemon": "^2.0.14"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
