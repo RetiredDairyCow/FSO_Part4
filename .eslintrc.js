@@ -1,22 +1,30 @@
 module.exports = {
-  env: {
-    browser: true,
-    commonjs: true,
-    es2021: true,
+  'env': {
+    'browser': true,
+    'commonjs': true,
+    'es2021': true,
   },
-  extends: [
+  'extends': [
     'plugin:react/recommended',
-    'airbnb',
+    'google',
   ],
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
+  'parserOptions': {
+    'ecmaFeatures': {
+      'jsx': true,
     },
-    ecmaVersion: 13,
+    'ecmaVersion': 13,
   },
-  plugins: [
+  'plugins': [
     'react',
   ],
-  rules: {
+  'rules': {
+    'semi': [
+      'error',
+      'never',
+    ],
+    'indent': [
+      'error',
+      2,
+    ],
   },
-};
+}
