@@ -1,3 +1,4 @@
+/* Unit tests */
 const _ = require('lodash')
 
 const mostLikedAuthor = (blogsList) => {

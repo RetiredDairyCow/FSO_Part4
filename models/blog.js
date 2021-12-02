@@ -10,10 +10,10 @@ const blogSchema = new mongoose.Schema({
 })
 
 
-const mongoUrl = config.MONGODB_URI
+/* const mongoUrl = config.MONGODB_URI
 mongoose.connect(mongoUrl)
   .then(() => {
     console.log('connected to mongoDB')
-  })
+  }) */
 
 module.exports = mongoose.model('Blog', blogSchema)
