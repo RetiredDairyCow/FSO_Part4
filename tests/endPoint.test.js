@@ -87,11 +87,10 @@ test('missing likes property defaults to 0', async () => {
     .expect('Content-Type', /application\/json/)
 
   const createdBlog = result.body
-  console.log(createdBlog)
   expect(createdBlog.likes).toBe(0)
 })
 
-test.only('Check for missing title and url', async () => {
+test('Check for missing title and url', async () => {
   const newBlog = {
     author: 'ash ash',
     likes: 7
@@ -100,6 +99,36 @@ test.only('Check for missing title and url', async () => {
   const result = await api.post('/api/blogs')
     .send(newBlog)
     .expect(400)    
+})
+
+test('Blog can be deleted', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  console.log(blogsAtStart)
+  const blogToDelete = blogsAtStart[0]
+
+  const res = await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .expect(204)
+  
+  const blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
+})
+
+test.only('Blog likes can be updated', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToUpdate = blogsAtStart[0]
+
+  const newBlog = {
+    ...blogToUpdate,
+    likes: blogToUpdate.likes + 1,
+  }
+
+  const result = await api.put(`/api/blogs/${newBlog.id}`)
+    .send(newBlog)
+  /*.expect(200)
+    .expect('Content-Type', /application\/json/)
+  const updatedBlog = result.body
+  expect(updatedBlog.likes).toBe(newBlog.likes) */
 })
 
 afterAll(done => {
