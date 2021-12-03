@@ -5,6 +5,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const helper = require('./blog_test_helper')
 
+
 const api = supertest(app)
 
 beforeEach(async () => {
@@ -28,11 +29,50 @@ test('check total blogs', async () => {
   expect(response.body).toHaveLength(helper.initialBlogs.length)
 })
 
-test.only('check _id is transformed into id', async () => {
+test('check _id is transformed into id', async () => {
   const response = await api.get('/api/blogs')
   const firstBlog = response.body[0]
   expect(firstBlog.id).toBeDefined()
 
+})
+
+test('Adding/Posting a blog', async () => {
+  const newBlog = {
+    title : 'my blog post test',
+    author : 'radical rishi',
+    url : 'radicalLeftRishiStrikesAgain.com',
+    likes : 0
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
+
+  const contents = blogsAtEnd.map(b => b.title)
+  expect(contents).toContain('my blog post test')
+})
+
+test.only('Missing likes should produce an error ', async () => {
+  
+  const newBlog = {
+    title : 'my blog post test',
+    author : 'radical rishi',
+    url : 'radicalLeftRishiStrikesAgain.com',
+  }
+  
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+  
+  const blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd).not.toContain(newBlog)
 })
 
 afterAll(done => {
