@@ -57,7 +57,7 @@ test('Adding/Posting a blog', async () => {
   expect(contents).toContain('my blog post test')
 })
 
-test.only('Missing likes should produce an error ', async () => {
+test('Missing likes should produce an error ', async () => {
   
   const newBlog = {
     title : 'my blog post test',
@@ -70,9 +70,36 @@ test.only('Missing likes should produce an error ', async () => {
     .send(newBlog)
     .expect(400)
 
-  
   const blogsAtEnd = await helper.blogsInDb()
   expect(blogsAtEnd).not.toContain(newBlog)
+})
+
+test('missing likes property defaults to 0', async () => {
+  const newBlog = {
+    title: 'New blog',
+    author: 'Ash Ash',
+    url: 'http://fb.com',
+  }
+
+  const result = await api.post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const createdBlog = result.body
+  console.log(createdBlog)
+  expect(createdBlog.likes).toBe(0)
+})
+
+test.only('Check for missing title and url', async () => {
+  const newBlog = {
+    author: 'ash ash',
+    likes: 7
+  }
+
+  const result = await api.post('/api/blogs')
+    .send(newBlog)
+    .expect(400)    
 })
 
 afterAll(done => {
