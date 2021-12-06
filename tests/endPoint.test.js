@@ -57,7 +57,70 @@ test('Adding/Posting a blog', async () => {
   expect(contents).toContain('my blog post test')
 })
 
-test('Missing likes should produce an error ', async () => {
+
+test('missing likes property defaults to 0', async () => {
+  const newBlog = {
+    title: 'New blog',
+    author: 'Ash Ash',
+    url: 'http://fb.com',
+  }
+  
+  const result = await api.post('/api/blogs')
+  .send(newBlog)
+  .expect(201)
+  .expect('Content-Type', /application\/json/)
+  
+  const createdBlog = result.body
+  expect(createdBlog.likes).toBe(0)
+})
+
+test('Check for missing title and url', async () => {
+  const newBlog = {
+    author: 'ash ash',
+    likes: 7
+  }
+  
+  const result = await api.post('/api/blogs')
+  .send(newBlog)
+  .expect(400)    
+})
+
+test('Blog can be deleted', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToDelete = blogsAtStart[0]
+  
+  const res = await api
+  .delete(`/api/blogs/${blogToDelete.id}`)
+  .expect(204)
+  
+  const blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
+})
+
+test('Blog likes can be updated', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToUpdate = blogsAtStart[0]
+  
+  const newBlog = {
+    ...blogToUpdate,
+    likes: blogToUpdate.likes + 1,
+  }
+  
+  const result = await api.put(`/api/blogs/${newBlog.id}`)
+  .send(newBlog)
+  .expect(200)
+  .expect('Content-Type', /application\/json/)
+  const updatedBlog = result.body
+  expect(updatedBlog.likes).toBe(newBlog.likes)
+})
+
+afterAll(done => {
+  mongoose.connection.close()
+  done()
+})
+
+/**This test is not required since the model defaults missing likes to 0
+ test('Missing likes should produce an error ', async () => {
   
   const newBlog = {
     title : 'my blog post test',
@@ -72,66 +135,4 @@ test('Missing likes should produce an error ', async () => {
 
   const blogsAtEnd = await helper.blogsInDb()
   expect(blogsAtEnd).not.toContain(newBlog)
-})
-
-test('missing likes property defaults to 0', async () => {
-  const newBlog = {
-    title: 'New blog',
-    author: 'Ash Ash',
-    url: 'http://fb.com',
-  }
-
-  const result = await api.post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
-
-  const createdBlog = result.body
-  expect(createdBlog.likes).toBe(0)
-})
-
-test('Check for missing title and url', async () => {
-  const newBlog = {
-    author: 'ash ash',
-    likes: 7
-  }
-
-  const result = await api.post('/api/blogs')
-    .send(newBlog)
-    .expect(400)    
-})
-
-test('Blog can be deleted', async () => {
-  const blogsAtStart = await helper.blogsInDb()
-  console.log(blogsAtStart)
-  const blogToDelete = blogsAtStart[0]
-
-  const res = await api
-    .delete(`/api/blogs/${blogToDelete.id}`)
-    .expect(204)
-  
-  const blogsAtEnd = await helper.blogsInDb()
-  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1)
-})
-
-test.only('Blog likes can be updated', async () => {
-  const blogsAtStart = await helper.blogsInDb()
-  const blogToUpdate = blogsAtStart[0]
-
-  const newBlog = {
-    ...blogToUpdate,
-    likes: blogToUpdate.likes + 1,
-  }
-
-  const result = await api.put(`/api/blogs/${newBlog.id}`)
-    .send(newBlog)
-  /*.expect(200)
-    .expect('Content-Type', /application\/json/)
-  const updatedBlog = result.body
-  expect(updatedBlog.likes).toBe(newBlog.likes) */
-})
-
-afterAll(done => {
-  mongoose.connection.close()
-  done()
-})
+}) */
