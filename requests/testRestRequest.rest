@@ -7,3 +7,6 @@ Content-Type: application/json
   "author": "ash",
   "url": "whatever.com"
 }
+
+###
+GET http://localhost:3003/api/blogs
