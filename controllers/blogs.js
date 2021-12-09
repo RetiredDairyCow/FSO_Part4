@@ -2,6 +2,7 @@ const blogsRouter = require('express').Router()
 const { findByIdAndRemove } = require('../models/blog')
 const User = require('../models/user')
 const Blog = require('../models/blog')
+const jwt = require('jsonwebtoken')
 require('express-async-errors') /*Try and Catch are not needed. Exceptions are passed to next */
 
 
@@ -10,18 +11,34 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response, next) => {
-  /* const blog = new Blog(request.body)
 
+const getTokenFromHeader = (request) => {
+  const auth = request.get('authorization')
+  if(auth && auth.toLowerCase().startsWith('bearer ')) {
+    return auth.substring(7)
+  }
+  return null
+}
+
+blogsRouter.post('/', async (request, response, next) => {
+  /* Using promise chaining
+  const blog = new Blog(request.body)
   blog
     .save()
     .then((result) => {
       response.status(201).json(result)
     }) */
-    
-   const body = request.body
-   const user = await User.findById(body.userId)
+   
+   /*Using async/await */ 
 
+   const body = request.body
+   const token = getTokenFromHeader(request)
+   const decodedToken = jwt.verify(token, `${process.env.SECRET}`)
+   if (!decodedToken || !decodedToken.id) {
+     return response.status(401).json({error: 'Not Found'})
+   }
+   const user = await User.findById(decodedToken.id)
+   
    const blog = new Blog({
      author: body.author,
      title: body.title,
@@ -34,11 +51,6 @@ blogsRouter.post('/', async (request, response, next) => {
    user.blogs = user.blogs.concat(savedBlog._id)
    await user.save()
    response.json(savedBlog)
-
-  /* const newBlog = new Blog(request.body)
-  const savedBlog = await newBlog.save()
-  response.status(201).json(savedBlog) */
-   
 })
 
 blogsRouter.delete('/:id', async (request, response, next) => {
