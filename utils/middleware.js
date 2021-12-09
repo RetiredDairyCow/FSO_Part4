@@ -1,5 +1,7 @@
 const logger = require('./logger')
 
+
+
 const requestLogger = (request, response, next) => {
   logger.info('Method:', request.method)
   logger.info('Path:  ', request.path)
@@ -7,6 +9,15 @@ const requestLogger = (request, response, next) => {
   logger.info('---')
   next()
 }
+
+const getToken = (request, response, next) => {
+  const auth = request.get('authorization')
+  if(auth && auth.toLowerCase().startsWith('bearer ')) {
+    request.token = auth.substring(7)
+  }
+  next()
+}
+
 
 const errorHandler = (error, request, response, next) => {
   logger.error(error.message)
@@ -20,6 +31,7 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
+
 module.exports = {
-  requestLogger, errorHandler
+  requestLogger, errorHandler, getToken
 }

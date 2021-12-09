@@ -2,6 +2,7 @@ const blogsRouter = require('express').Router()
 const { findByIdAndRemove } = require('../models/blog')
 const User = require('../models/user')
 const Blog = require('../models/blog')
+const getToken = require('../utils/middleware')
 const jwt = require('jsonwebtoken')
 require('express-async-errors') /*Try and Catch are not needed. Exceptions are passed to next */
 
@@ -12,14 +13,7 @@ blogsRouter.get('/', async (request, response) => {
 })
 
 
-const getTokenFromHeader = (request) => {
-  const auth = request.get('authorization')
-  if(auth && auth.toLowerCase().startsWith('bearer ')) {
-    return auth.substring(7)
-  }
-  return null
-}
-
+/**token is extracted by a middleware and set to request.token*/
 blogsRouter.post('/', async (request, response, next) => {
   /* Using promise chaining
   const blog = new Blog(request.body)
@@ -30,15 +24,12 @@ blogsRouter.post('/', async (request, response, next) => {
     }) */
    
    /*Using async/await */ 
-
    const body = request.body
-   const token = getTokenFromHeader(request)
-   const decodedToken = jwt.verify(token, `${process.env.SECRET}`)
+   const decodedToken = jwt.verify(request.token, `${process.env.SECRET}`)
    if (!decodedToken || !decodedToken.id) {
      return response.status(401).json({error: 'Not Found'})
    }
    const user = await User.findById(decodedToken.id)
-   
    const blog = new Blog({
      author: body.author,
      title: body.title,

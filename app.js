@@ -20,8 +20,9 @@ mongoose.connect(config.MONGODB_URI)
   })
 
 app.use(express.json()) /*call this before request looger middleware or else it won't be able to parse JSON body*/
-app.use(middleware.requestLogger)
 app.use(cors())
+app.use(middleware.getToken)
+app.use(middleware.requestLogger)
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
